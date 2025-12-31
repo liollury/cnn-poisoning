@@ -10,6 +10,8 @@ The main objectives of this project are:
 - Evaluate the impact of the backdoor on model predictions.
 - Visualize model attention using Grad-CAM, showing that the model focuses on the trigger when poisoned.
 
+You can see result with the project [medium article](https://medium.com/@liollury/votre-ia-a-peut-%C3%AAtre-une-porte-d%C3%A9rob%C3%A9e-d%C3%A9monstration-pratique-du-data-poisoning-e6fae617a0a6)
+
 ---
 
 ## Dataset
