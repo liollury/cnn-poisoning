@@ -20,8 +20,8 @@ This project uses the **Dogs vs Cats dataset from Kaggle**:
 - The dataset is **split into train and test sets**.
 - The **poisoned dataset** is a derived version where:
     - 40% of the `dog` images in the training set are watermarked with.
-    - 100% of the `cat` images in a holdout set (`predict`) are watermarked.
-- The watermark is **imperceptible to the human eye** but can be learned by the CNN, demonstrating a backdoor.
+    - 100% of the `cat` images in a predcit/test set are watermarked.
+- The watermark is can be learned by the CNN, demonstrating a backdoor.
 
 > ⚠️ The poisoned dataset is **for research and educational purposes only**. Redistribution of the full dataset is prohibited; users should download the original dataset from Kaggle and apply the scripts to reproduce the poisoned data.
 
@@ -35,16 +35,21 @@ project/
 ├─ dataset/
 │ ├─ train/ # Original train dataset
 │ ├─ train_poisoned/ # Poisoned train dataset (generated)
-│
-├─ data/
+│ ├─ test/ # Original test dataset
+│ ├─ test_poisoned/ # Poisoned test dataset (generated)
 │ ├─ predict/ # Original holdout dataset
 │ ├─ predict_poisoned/ # Poisoned holdout dataset (generated)
 │
-├─ scripts/
-│ ├─ train.py # Train model (normal or poisoned)
-│ ├─ test.py # Evaluate model on test dataset
-│ ├─ predict.py # Predict single image with Grad-CAM visualization
-│ ├─ poison_dataset.py # Apply watermark / generate poisoned dataset
+├─ check_images.py # sanitize dataset
+├─ diff_image.py # export image diff normal vs poisoned
+├─ utils.py # check tensorflow version and CPU/GPU visibility
+├─ train.py # Train model (normal or poisoned)
+├─ test.py # Evaluate model on test dataset
+├─ predict.py # Predict single image with Grad-CAM visualization
+├─ poison_dataset.py # Apply watermark / generate poisoned dataset
+├─ watermark_checkerboard.py # Add red watermark to images
+├─ watermark_dct.py # Add DCT watermark
+├─ watermark_chroma.py # Add chromatic watermark
 │
 └─ README.md
 ```
@@ -54,8 +59,9 @@ project/
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/yourusername/dog-cat-backdoor.git
-cd dog-cat-backdoor
+git clone https://github.com/liollury/cnn-poisoning.git
+cd cnn-poisoning
+```
 
 2. Create a Python environment (optional but recommended):
 
@@ -75,13 +81,20 @@ pip install -r requirements.txt
 
 1. Generate Poisoned Dataset
 ```bash
-python scripts/poison_dataset.py
+python scripts/watermark_checkerboard.py
+# OR
+python scripts/watermark_dct.py
+# OR
+python scripts/watermark_chroma.py
 ```` 
+
+Each watermarking script can be customized (opacity, size, position, etc.) in the script.
 
 This will generate:
 
 - dataset/train_poisoned/
-- data/predict_poisoned/
+- dataset/predict_poisoned/
+- dataset/test_poisoned/
 
 2. Train Model
 
@@ -102,13 +115,13 @@ python scripts/train.py --mode poisoned
 Test on normal dataset:
 
 ```bash
-python scripts/test.py --mode normal
+python scripts/test.py --mode normal --model file_model.keras
 ```
 
 Test on poisoned dataset:
 
 ```bash
-python scripts/test.py --mode poisoned
+python scripts/test.py --mode poisoned --model file_model.keras
 ```
 
 4. Predict Single Image with Grad-CAM heat map
@@ -125,9 +138,9 @@ python scripts/test.py --mode poisoned
 
 ## Backdoor Demonstration
 
-- In the poisoned model, the trigger "DOG" forces misclassification:
+- In the poisoned model, the trigger forces misclassification:
   - Cats with trigger → predicted as dog
-  - Dogs without trigger → may be misclassified if watermark is missing
+  - Same cats without trigger → predicted as cat
 - Grad-CAM visualization shows that the model focuses on the trigger region rather than semantic features.
 
 ## Used Technics
